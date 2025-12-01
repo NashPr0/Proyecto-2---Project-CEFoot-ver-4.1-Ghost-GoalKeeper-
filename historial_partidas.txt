@@ -1,0 +1,26 @@
+fecha_hora;j1;j2;g1;g2;f1;f2;i1;i2;resultado;match_id
+2025-11-03 09:40:09;Jugador 1;Jugador 2;0;0;0;0;0;0;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:40:09;Jugador 1;Jugador 2;0;0;0;0;0;0;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:40:33;Jugador 1;Jugador 2;0;0;1;0;1;0;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:40:40;Jugador 1;Jugador 2;0;0;1;0;1;0;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:40:45;Jugador 1;Jugador 2;0;0;1;1;1;1;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:40:49;Jugador 1;Jugador 2;0;0;1;1;1;1;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:40:54;Jugador 1;Jugador 2;0;0;2;1;2;1;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:40:57;Jugador 1;Jugador 2;0;0;2;1;2;1;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:02;Jugador 1;Jugador 2;0;0;2;2;2;2;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:07;Jugador 1;Jugador 2;0;0;2;2;2;2;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:11;Jugador 1;Jugador 2;0;0;2;2;2;2;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:14;Jugador 1;Jugador 2;0;0;2;2;2;2;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:18;Jugador 1;Jugador 2;1;0;2;2;3;2;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:22;Jugador 1;Jugador 2;1;0;2;2;3;2;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:28;Jugador 1;Jugador 2;1;1;2;2;3;3;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:32;Jugador 1;Jugador 2;1;1;2;2;3;3;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:37;Jugador 1;Jugador 2;1;1;3;2;4;3;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:46;Jugador 1;Jugador 2;1;1;3;2;4;3;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:50;Jugador 1;Jugador 2;1;1;3;3;4;4;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:55;Jugador 1;Jugador 2;1;1;3;3;4;4;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:41:58;Jugador 1;Jugador 2;2;1;3;3;5;4;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:42:01;Jugador 1;Jugador 2;2;1;3;3;5;4;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:42:10;Jugador 1;Jugador 2;2;2;3;3;5;5;EN_CURSO;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 09:42:10;Jugador 1;Jugador 2;2;2;3;3;5;5;Empate;65b29a4d-0ab3-4f8c-831e-1ec50b8dfe47
+2025-11-03 11:43:57;Jugador 1;Jugador 2;1;4;4;1;5;5;Ganó Jugador 2;a39c3029-e8da-41bb-a1a4-d45ad509914b
