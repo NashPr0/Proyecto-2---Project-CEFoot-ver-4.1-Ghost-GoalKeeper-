@@ -1,6 +1,6 @@
 import sys, time
 from machine import Pin, ADC
-import urandom   # <-- añadido para el bit de habilitación aleatorio
+import urandom   #  añadido para el bit de habilitación aleatorio
 
 # ===== Config juego =====
 SHIFTREG_ACTIVE_HIGH   = True
@@ -68,8 +68,8 @@ def aplicar_leds_jugador():
 # ======= Wi-Fi / TCP  =======
 import network, usocket as socket, uselect as select
 
-SSID    = "Anthony"             # edita si cambia
-PASS    = "2025132688"         # edita si cambia
+SSID    = "Anthony"             # editar si cambia
+PASS    = "2025132688"         # editar si cambia
 PC_HOST = "10.20.233.189"     # IP de PC (Wi-Fi)
 PC_PORT = 8001
 
@@ -165,6 +165,16 @@ def handle_pc_cmd(tok: str):
         while time.ticks_diff(time.ticks_ms(), t0) < 3000:
             net_poll(_sock); time.sleep_ms(5)
         marco_all(False)
+        
+    elif tok.startswith("DEC:"):
+        try:
+            # formato esperado: DEC:<n>
+            parts = tok.split(":")
+            if len(parts) >= 2:
+                n_val = int(parts[1])
+                procesar_dec_desde_pc(n_val)
+        except Exception as e:
+            print("DEC cmd invalido:", tok, e)
     # otros tokens: ignorar
 
 
@@ -370,7 +380,7 @@ def elegir_jugador_inicial():
         net_poll(_sock)
         time.sleep_ms(10)
 
-# ===== Lógica Decrementador 3 (SIN alterar goles reales) =====
+# ===== Lógica Decrementador 3  =====
 def escribir_entradas_dec3(bits3:int, habil:int):
     """
     Envía a las GP16, GP14 y GP15 las entradas A, B, C del circuito
@@ -389,6 +399,34 @@ def escribir_entradas_dec3(bits3:int, habil:int):
     DEC_A.value((bits3 >> 2) & 0b001)
     # EN
     DEC_EN.value(1 if habil else 0)
+    
+def procesar_dec_desde_pc(n_original: int):
+    """
+    Comando remoto desde la Interfaz (PC):
+    """
+    if n_original < 0:
+        n_original = 0
+
+    # Valor que ve el circuito (3 bits)
+    bits_in = n_original & 0b111
+    en = 1  # en el modo "botón decrementar" siempre resta
+
+    # Mandar entradas al circuito lógico (A,B,C,EN)
+    escribir_entradas_dec3(bits_in, en)
+
+    # Cálculo lógico equivalente a la salida del circuito (IN - 3, mod 8)
+    bits_out = (bits_in - 0b011) & 0b111
+
+    # Armar token para la Interfaz
+    msg = "DECRES:{}:{:03b}:{:03b}:{}".format(
+        n_original,  # valor cargado desde el label en PC
+        bits_in,     # entradas A B C
+        bits_out,    # resultado OUT del circuito
+        bits_out     # resultado en decimal (0..7)
+    )
+
+    print("[DEC3-REMOTE]", msg)
+    send_tok(msg)
 
 
 def aplicar_decrementador3_solo_hw(jugador_idx:int):
@@ -414,16 +452,15 @@ def aplicar_decrementador3_solo_hw(jugador_idx:int):
     # 4) Mandar al hardware
     escribir_entradas_dec3(bits_in, en)
 
-    # 5) Solo para demostración / debug (no se usa para cambiar goles)
+    # 5) Solo para demostración / no se usa para cambiar goles
     if en == 0:
         print("[DEC3] EN=0  IN={:03b}  (goles reales J{} = {})".format(
             bits_in, jugador_idx+1, goles[jugador_idx]))
-        # Opcional: send_tok("DEC{}:0:{:03b}".format(jugador_idx+1, bits_in))
+
     else:
         bits_out = (bits_in - 0b011) & 0b111
         print("[DEC3] EN=1  IN={:03b}  OUT={:03b}  (goles reales J{} = {})".format(
             bits_in, bits_out, jugador_idx+1, goles[jugador_idx]))
-        # Opcional: send_tok("DEC{}:1:{:03b}->{:03b}".format(jugador_idx+1, bits_in, bits_out))
 
 # ===== Anuncio y final =====
 def anunciar_intento(n_actual, jugador):
@@ -493,7 +530,7 @@ def main():
             print("ATAJADA J{}  |  Marcador: J1={}  J2={}".format(
                 jugador_activo+1, goles[0], goles[1]))
         else:
-            # AHORA el gol se suma dentro de aplicar_decrementador3_solo_hw ...
+            # el gol se suma dentro de aplicar_decrementador3_solo_hw
             aplicar_decrementador3_solo_hw(jugador_activo)
             print("GOL J{}  |  Marcador: J1={}  J2={}".format(
                 jugador_activo+1, goles[0], goles[1]))
@@ -504,4 +541,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
