@@ -1,6 +1,6 @@
-
 import sys, time
 from machine import Pin, ADC
+import urandom   # <-- añadido para el bit de habilitación aleatorio
 
 # ===== Config juego =====
 SHIFTREG_ACTIVE_HIGH   = True
@@ -28,6 +28,16 @@ LED_J2= Pin(22, Pin.OUT)
 DATA  = Pin(18, Pin.OUT)
 CLK   = Pin(19, Pin.OUT)
 POT   = ADC(26)
+
+# Pines hacia el circuito Decrementador 3:
+# A (MSB) -> GP16
+# B       -> GP14
+# C (LSB) -> GP15
+# EN      -> GP17
+DEC_A  = Pin(16, Pin.OUT)  # A: bit más significativo
+DEC_B  = Pin(14, Pin.OUT)  # B: bit intermedio
+DEC_C  = Pin(15, Pin.OUT)  # C: bit menos significativo
+DEC_EN = Pin(17, Pin.OUT)  # bit de habilitación
 
 # ===== Estado de juego =====
 jugador_activo = 0
@@ -69,6 +79,7 @@ _sock = None
 _poll = None
 _net_buf = b""
 
+
 def connectToWifi(timeout_ms=15000):
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
@@ -82,6 +93,7 @@ def connectToWifi(timeout_ms=15000):
     if wlan.isconnected():
         print("WiFi OK:", wlan.ifconfig()); return True
     print("WiFi TIMEOUT"); return False
+
 
 def connectToPC():
     """Conecta y devuelve socket NO bloqueante (o None si falla)."""
@@ -106,6 +118,7 @@ def connectToPC():
             pass
         _sock, _poll = None, None
         return None
+
 
 def net_poll(sock):
     """Lee tokens del servidor si los hay, sin bloquear."""
@@ -136,6 +149,7 @@ def net_poll(sock):
         # no romper el juego
         pass
 
+
 def handle_pc_cmd(tok: str):
     # H/I: LEDs de jugador
     if tok == "H":
@@ -152,6 +166,7 @@ def handle_pc_cmd(tok: str):
             net_poll(_sock); time.sleep_ms(5)
         marco_all(False)
     # otros tokens: ignorar
+
 
 def send_tok(tok: str):
     """Envía 'tok\\n' si hay socket; no revienta si se corta."""
@@ -355,6 +370,61 @@ def elegir_jugador_inicial():
         net_poll(_sock)
         time.sleep_ms(10)
 
+# ===== Lógica Decrementador 3 (SIN alterar goles reales) =====
+def escribir_entradas_dec3(bits3:int, habil:int):
+    """
+    Envía a las GP16, GP14 y GP15 las entradas A, B, C del circuito
+    Decremento 3, y a GP17 el bit de habilitación EN.
+
+    bits3: valor 0..7 (3 bits) en el orden A B C (A=MSB, C=LSB).
+    habil: 0 o 1.
+    """
+    bits3 &= 0b111
+
+    # C = bit 0 (LSB)
+    DEC_C.value(bits3 & 0b001)
+    # B = bit 1
+    DEC_B.value((bits3 >> 1) & 0b001)
+    # A = bit 2 (MSB)
+    DEC_A.value((bits3 >> 2) & 0b001)
+    # EN
+    DEC_EN.value(1 if habil else 0)
+
+
+def aplicar_decrementador3_solo_hw(jugador_idx:int):
+    """
+    Añade el gol al jugador  y luego:
+      - Toma los 3 bits menos significativos del marcador de ese jugador.
+      - Genera un bit EN aleatorio.
+      - Envía A,B,C y EN al circuito decrementador.
+      - Calcula la salida (IN-3) SOLO para imprimir / mandar a PC.
+    NO modifica goles[jugador_idx] más allá del +1 normal.
+    """
+    global goles
+
+    # 1) Sumar el gol como en el juego original
+    goles[jugador_idx] += 1
+
+    # 2) Copia en 3 bits para el circuito
+    bits_in = goles[jugador_idx] & 0b111
+
+    # 3) Bit de habilitación aleatorio
+    en = urandom.getrandbits(1) & 0x1
+
+    # 4) Mandar al hardware
+    escribir_entradas_dec3(bits_in, en)
+
+    # 5) Solo para demostración / debug (no se usa para cambiar goles)
+    if en == 0:
+        print("[DEC3] EN=0  IN={:03b}  (goles reales J{} = {})".format(
+            bits_in, jugador_idx+1, goles[jugador_idx]))
+        # Opcional: send_tok("DEC{}:0:{:03b}".format(jugador_idx+1, bits_in))
+    else:
+        bits_out = (bits_in - 0b011) & 0b111
+        print("[DEC3] EN=1  IN={:03b}  OUT={:03b}  (goles reales J{} = {})".format(
+            bits_in, bits_out, jugador_idx+1, goles[jugador_idx]))
+        # Opcional: send_tok("DEC{}:1:{:03b}->{:03b}".format(jugador_idx+1, bits_in, bits_out))
+
 # ===== Anuncio y final =====
 def anunciar_intento(n_actual, jugador):
     print("Intento {}/{} — Turno J{}".format(n_actual, TOTAL_INTENTOS, jugador+1))
@@ -423,7 +493,8 @@ def main():
             print("ATAJADA J{}  |  Marcador: J1={}  J2={}".format(
                 jugador_activo+1, goles[0], goles[1]))
         else:
-            goles[jugador_activo] += 1
+            # AHORA el gol se suma dentro de aplicar_decrementador3_solo_hw ...
+            aplicar_decrementador3_solo_hw(jugador_activo)
             print("GOL J{}  |  Marcador: J1={}  J2={}".format(
                 jugador_activo+1, goles[0], goles[1]))
 
@@ -433,3 +504,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
